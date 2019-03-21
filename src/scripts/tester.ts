@@ -12,12 +12,10 @@ import * as fs from "fs";
 const expectedPublicKey: string = "GBM6GP3FDOU2T2XLFYVWBS4NJIOFBA7HEQ6BXIXCDDKZUFEZRYGU6TL5";
 const passPhrase = "passphrase";
 const keyPair = Keypair.random();
-let protectedKeyStore: ProtectedKeyStore;
 
 ToProtectedKeyStore(keyPair, passPhrase)
 	.then(p => {
-		protectedKeyStore = p;
-		console.log(protectedKeyStore);
+		console.log(p);
 		return Encode(p);
 	})
 	.then(buffer => {
