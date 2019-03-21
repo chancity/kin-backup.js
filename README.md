@@ -13,51 +13,55 @@ import {
 
 import * as fs from "fs";
 
-const expectedPublicKey: string = "GBM6GP3FDOU2T2XLFYVWBS4NJIOFBA7HEQ6BXIXCDDKZUFEZRYGU6TL5";
 const passPhrase = "passphrase";
 const keyPair = Keypair.random();
-let protectedKeyStore: ProtectedKeyStore;
+const expectedPublicKey: string = keyPair.publicKey();
 
 ToProtectedKeyStore(keyPair, passPhrase)
 	.then(p => {
-		protectedKeyStore = p;
-		console.log(protectedKeyStore);
+		console.log(p);
 		return Encode(p);
 	})
 	.then(buffer => {
+		fs.writeFile("new_test_backup.png", buffer, "binary", function(err) {
+			if (err) { throw err; }
+			console.log("File saved.");
+		})
 		return Decode(buffer);
 	})
 	.then(p => {
 		return ToUnprotectedKeyStore("passphrase", p.salt, p.seed);
 	})
-	.then(up => console.log(up));
-
-fs.readFile("test_backup.png", function(err, buffer) {
-	if (err) {
-		throw err;
-	}
-	Decode(buffer).then(p => {
-		return ToUnprotectedKeyStore(passPhrase, p.salt, p.seed);
-	})
-	.then(up => {
-		console.log(up);
-		const expectedKey = up.pkey === expectedPublicKey;
-		console.log("got expected public key " + expectedKey);
+	.then(up => console.log(up)).then(() =>{
+		fs.readFile("new_test_backup.png", function(err, buffer) {
+			if (err) {
+				throw err;
+			}
+			Decode(buffer).then(p => {
+				return ToUnprotectedKeyStore(passPhrase, p.salt, p.seed);
+			})
+				.then(up => {
+					console.log(up);
+					const expectedKey = up.pkey === expectedPublicKey;
+					console.log("got expected public key " + expectedKey);
+				});
+		});
 	});
-});
 ```
 
 ## Tester output
 ```
 ProtectedKeyStore {
-  pkey: 'GA77HHXFXYQNO5Z6O7DH67ESMJLRQWLEEFS4QWMROYQPKGAM62HUSRDG',
-  salt: 'e809d0eb35c5c27eb2986d53fe49784b',
-  seed: '1d40cc77b1c4a07ed35725a9fbf9215b23067e16b8ee492235c32b3d7551b2c4eb811b80da43a50b3c966f28dfbbdac96ea7b11f5a7ccd4229b38271aedd238aa7bb2797f9e2d547' }
+  pkey: 'GCDUY6JKXRYRQPVGHQ25N4JVIEQQZXEC5LTEMCN7I7DCFXMZSUDR3VFQ',
+  salt: 'd09fbc280de4ebb4d3fd4db422838aa1',
+  seed: 'a3db3a0ae3bf6a62fe28ab4b9c7a00863f328108f5ec877e3bb05bf3581b1f02815c9384af76bdfaf687e98fe2b91cfb938fc9a545ef8921132742e9648157e5244a3bf7823569ca' }
 UnprotectedKeyStore {
-  pkey: 'GA77HHXFXYQNO5Z6O7DH67ESMJLRQWLEEFS4QWMROYQPKGAM62HUSRDG',
-  seed: 'SC4DUCZFADKGHKQYP5GJZ7XNT7TIQWWNY2WKYG7VRFZMO7VK24T7O4MI' }
+  pkey: 'GCDUY6JKXRYRQPVGHQ25N4JVIEQQZXEC5LTEMCN7I7DCFXMZSUDR3VFQ',
+  seed: 'SDI5YRRBRJNHDO35ETUGEALCXKZHBZK6JJGMSR57QUNDIGTRKZOIRLV5' }
+File saved.
 UnprotectedKeyStore {
-  pkey: 'GBM6GP3FDOU2T2XLFYVWBS4NJIOFBA7HEQ6BXIXCDDKZUFEZRYGU6TL5',
-  seed: 'SDFFWNJ3KUSKB5AY7DGNYWIUVUWCPMCFDBF7USUTN7VXGABWQKJPPAOB' }
+  pkey: 'GCDUY6JKXRYRQPVGHQ25N4JVIEQQZXEC5LTEMCN7I7DCFXMZSUDR3VFQ',
+  seed: 'SDI5YRRBRJNHDO35ETUGEALCXKZHBZK6JJGMSR57QUNDIGTRKZOIRLV5' }
 got expected public key true
+
 ```

@@ -9,7 +9,6 @@ import {
 
 import * as fs from "fs";
 
-
 const passPhrase = "passphrase";
 const keyPair = Keypair.random();
 const expectedPublicKey: string = keyPair.publicKey();
