@@ -9,27 +9,29 @@ import {
 
 import * as fs from "fs";
 
+const fileName =  "new_test_backup.png";
 const passPhrase = "passphrase";
 const keyPair = Keypair.random();
-const expectedPublicKey: string = keyPair.publicKey();
+const expectedPublicKey = keyPair.publicKey();
 
 ToProtectedKeyStore(keyPair, passPhrase)
 	.then(p => {
 		console.log(p);
+		console.log("Encrpyted keystore.")
 		return Encode(p);
 	})
 	.then(buffer => {
-		fs.writeFile("new_test_backup.png", buffer, "binary", function(err) {
+		fs.writeFile(fileName, buffer, "binary", function(err) {
 			if (err) { throw err; }
 			console.log("File saved.");
 		})
 		return Decode(buffer);
 	})
 	.then(p => {
-		return ToUnprotectedKeyStore("passphrase", p.salt, p.seed);
+		return ToUnprotectedKeyStore(passPhrase, p.salt, p.seed);
 	})
 	.then(up => console.log(up)).then(() =>{
-		fs.readFile("new_test_backup.png", function(err, buffer) {
+		fs.readFile(fileName, function(err, buffer) {
 			if (err) {
 				throw err;
 			}
@@ -39,7 +41,7 @@ ToProtectedKeyStore(keyPair, passPhrase)
 				.then(up => {
 					console.log(up);
 					const expectedKey = up.pkey === expectedPublicKey;
-					console.log("got expected public key " + expectedKey);
+					console.log("Got expected public key " + expectedKey + ".");
 				});
 		});
 	});
